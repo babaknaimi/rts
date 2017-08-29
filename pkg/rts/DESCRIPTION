@@ -1,0 +1,12 @@
+Package: rts
+Type: Package
+Title: Raster Time Series Analysis
+Version: 1.0-43
+Date: 2017-08-29
+Author: Babak Naimi
+Depends: methods, sp (>= 1.2-0), R (>= 3.0.0), raster, xts, zoo, RCurl
+Suggests: digest
+Maintainer: Babak Naimi <naimi.b@gmail.com>
+Description: This framework aims to provide classes and methods for manipulating and processing of raster time series data (e.g. a time series of satellite images).
+License: GPL (>= 3)
+URL: http://r-gis.net
