@@ -158,11 +158,11 @@ getNativeTemporalResolution <- function(product) {
   if (forceReDownload | !file.exists(pathCache)) {
     # if forceReDownload or cache doesn't exist then access the MODIS url, else use the cached version
     serverErrorsPattern <- '503 Service Unavailable|500 Internal Server Error'
-    try.nr <- 5
+    try.nr <- 10
     items <- 0
-    class(items) <- "try-error"
+    success <- FALSE
     ce <- 0
-    while(class(items) == "try-error") { 
+    while(!success) { 
       # palfaro @ 2017-01-09
       items <- try(strsplit(RCurl::getURL(x,.opts = opt), "\r*\n")[[1]],silent=TRUE)
       
@@ -170,7 +170,7 @@ getNativeTemporalResolution <- function(product) {
         Sys.sleep(15)
         ce <- ce + 1
         if (ce == (try.nr+1)) stop("Download error: Server does not response!")
-      }
+      } else { success <- TRUE }
     }
     items <- items[-1]
     # get the directory names (available dates)
@@ -252,19 +252,19 @@ getNativeTemporalResolution <- function(product) {
       pathCache <- paste('RCache/', basename(productURL), '_', dir, '.rds', sep = '')
       if (forceReDownload | !file.exists(pathCache)) {
         getlist <- 0
-        class(getlist) <- "try-error"
+        success <- FALSE
         ce <- 0
-        while(class(getlist) == "try-error") {
+        while(!success) {
           # palfaro @ 2017-01-09
           # reuse MD_curlHandle to enable http keepalive
           getlist <- try(strsplit(RCurl::getURL(paste(productURL,dir, "/", sep=""),.opts = opt, curl = RCurl::getCurlHandle()), "\r*\n")[[1]],silent=TRUE)
-          
           if (class(getlist) == "try-error" || (length(getlist) < 30 && length(grep(pattern = serverErrorsPattern, getlist)) > 0)) {
             Sys.sleep(15)
             ce <- ce + 1
-            if (ce == 6) stop(paste("Download error: Server does not response!\n", getlist))
-          }
+            if (ce == 10) stop(paste("Download error: Server does not response!\n", getlist))
+          } else { success <- TRUE }
         }
+        # writeLines(getlist, paste('RCache/', basename(productURL), '_', dir, '.txt', sep = ''))
         
         # palfaro @ 2017-01-17
         # Add fixed = TRUE, slightly speeds up the parsing of the file
@@ -342,7 +342,7 @@ getNativeTemporalResolution <- function(product) {
 #--------
 
 .downloadHTTP <- function(x,filename,opt, forceReDownload=TRUE, 
-                          maxRetries=5, secondsBetweenRetries=15) {
+                          maxRetries=10, secondsBetweenRetries=15) {
   if (!requireNamespace("RCurl",quietly = TRUE)) stop("Package RCurl is not installed")
   # palfaro @ 2017-07-13 
   # this shouldn't be here, else each time we download a new file the curl handle is being recreated
