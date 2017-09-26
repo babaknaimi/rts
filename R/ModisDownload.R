@@ -248,16 +248,21 @@ getNativeTemporalResolution <- function(product) {
     # I had to rename x to productURL because of the call to parLapplyLB below already has an x parameter
     #dir <- dirs[[1]]
     #productURL <- x
-    getModisName <- function(dir, productURL, h, v, opt, serverErrorsPattern,forceReDownload=TRUE) {
+    getModisName <- function(dir, productURL, h, v, opt, serverErrorsPattern,forceReDownload=TRUE,curlHandle=NULL) {
       pathCache <- paste('RCache/', basename(productURL), '_', dir, '.rds', sep = '')
       if (forceReDownload | !file.exists(pathCache)) {
         getlist <- 0
         success <- FALSE
         ce <- 0
         while(!success) {
-          # palfaro @ 2017-01-09
-          # reuse MD_curlHandle to enable http keepalive
-          getlist <- try(strsplit(RCurl::getURL(paste(productURL,dir, "/", sep=""),.opts = opt, curl = RCurl::getCurlHandle()), "\r*\n")[[1]],silent=TRUE)
+          # palfaro @ 2017-09-25
+          # reuse curlHandle to enable http keepalive
+          # In the single thread scenario the handle is created by the calling function and passed to getModisName in the handle parameter
+          # In the threaded scenario curlHandle is null but curlHandleGlobal was created in the global environment of the thread where we know we aren't overwriting anyone's variable
+          if (is.null(curlHandle)) { auxCurlHandle <- curlHandleGlobal
+          } else { auxCurlHandle <- curlHandle }
+          
+          getlist <- try(strsplit(RCurl::getURL(paste(productURL,dir, "/", sep=""),.opts = opt, curl = auxCurlHandle), "\r*\n")[[1]],silent=TRUE)
           if (class(getlist) == "try-error" || (length(getlist) < 30 && length(grep(pattern = serverErrorsPattern, getlist)) > 0)) {
             Sys.sleep(15)
             ce <- ce + 1
@@ -274,8 +279,12 @@ getNativeTemporalResolution <- function(product) {
         w <- unlist(lapply(lapply(getlist,function(x) strsplit(x,'\\.')[[1]]),function(x) x[length(x)] == 'hdf'))
         if (any(w)) getlist <- getlist[w]
         
-        dir.create(dirname(pathCache), showWarnings=FALSE, recursive = TRUE)
-        saveRDS(object = getlist, file=pathCache)
+        if (length(getlist) > 0) {
+          # Don't cache getlist unless it has have some content, in case there's an error on the server for that 
+          # product/date and it gets fixed someday
+          dir.create(dirname(pathCache), showWarnings=FALSE, recursive = TRUE)
+          saveRDS(object = getlist, file=pathCache)
+        }
       } else {
         getlist <- readRDS(file = pathCache)
       }
@@ -309,20 +318,16 @@ getNativeTemporalResolution <- function(product) {
       # palfaro @ 2017-01-09
       # The curl handles must be created in the processes that are going to use them so we create them
       # using clusterEvalQ
-      #parallel::clusterExport(cl,c('.._MD_curlHandle'))
-      parallel::clusterEvalQ(cl, expr = { .._MD_curlHandle <- RCurl::getCurlHandle()})
+      parallel::clusterEvalQ(cl, expr = { 
+        require(RCurl) 
+        curlHandleGlobal <- RCurl::getCurlHandle()
+      })
       Modislist <- parallel::parLapplyLB(cl=cl, X=dirs, fun=getModisName, productURL=x, h=h, v=v, opt=opt, serverErrorsPattern=serverErrorsPattern, forceReDownload=forceReDownload)
       parallel::stopCluster(cl)
     } else {
-      # palfaro @ 2017-07-13
-      # This is a bit convoluted but we need the .rtsOptions$getOption('MD_curlHandle') created in the global environment for
-      # getModisName to find it. In the parallel case it gets created in the global environment in the clusterEvalQ call
-      # but if we call the same expression here it gets created in the current environment, thus we use assign
-      #assign(".rtsOptions$getOption('MD_curlHandle')", RCurl::getCurlHandle(), envir = .GlobalEnv)
-      #.._MD_curlHandle <<- RCurl::getCurlHandle()
-      Modislist <- lapply(dirs, FUN = getModisName, productURL=x, h=h, v=v, opt=opt, serverErrorsPattern=serverErrorsPattern, forceReDownload=forceReDownload)
-      #rm(.rtsOptions$getOption('MD_curlHandle'), envir = .GlobalEnv)
-      #rm(.._MD_curlHandle, envir = .GlobalEnv)
+      curlHandle <- RCurl::getCurlHandle()
+      Modislist <- lapply(dirs, FUN = getModisName, productURL=x, h=h, v=v, opt=opt, serverErrorsPattern=serverErrorsPattern, forceReDownload=forceReDownload, curlHandle=curlHandle)
+      rm(curlHandle)
     }
     names(Modislist) <- dirs
     
@@ -341,14 +346,9 @@ getNativeTemporalResolution <- function(product) {
 }
 #--------
 
-.downloadHTTP <- function(x,filename,opt, forceReDownload=TRUE, 
-                          maxRetries=10, secondsBetweenRetries=15) {
+.downloadHTTP <- function(x,filename,opt, forceReDownload=TRUE, maxRetries=10, secondsBetweenRetries=15, 
+                          curlHandle=NULL) {
   if (!requireNamespace("RCurl",quietly = TRUE)) stop("Package RCurl is not installed")
-  # palfaro @ 2017-07-13 
-  # this shouldn't be here, else each time we download a new file the curl handle is being recreated
-  # which disables keepalive
-  # .rtsOptions$getOption('MD_curlHandle') <- RCurl::getCurlHandle()
-  
   # palfaro @ 2017-01-02
   # Sometimes the server returns a response having 299 bytes total like this:
   #<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
@@ -390,14 +390,21 @@ getNativeTemporalResolution <- function(product) {
   # Also, adding a few retries if the file can't be downloaded
   # there are several momentary interruptions in connections that 
   # abort downloads but can be addressed by trying again.
+  
+  # palfaro @ 2017-09-25
+  # reuse curlHandle to enable http keepalive
+  # In the single thread scenario the handle is created by the calling function and passed to getModisName in the handle parameter
+  # In the threaded scenario curlHandle is null but curlHandleGlobal was created in the global environment of the thread where we know we aren't overwriting anyone's variable
+  if (is.null(curlHandle)) { auxCurlHandle <- curlHandleGlobal
+  } else { auxCurlHandle <- curlHandle }
+  
   nRetries <- 0
   while (!success & nRetries < maxRetries) {
     # palfaro @ 2017-01-09
     # Write directly to file, without going through memory, should be slightly faster.
-    # Also, reuse .rtsOptions$getOption('MD_curlHandle') to enable http keepalive
     f = RCurl::CFILE(filename, mode="wb")
     #er2 <- try(er <- RCurl::curlPerform(url = x, curl=get('.._MD_curlHandle'), writedata = f@ref, .opts = opt))
-    er2 <- try(er <- RCurl::curlPerform(url = x, curl=RCurl::getCurlHandle(), writedata = f@ref, .opts = opt))
+    er2 <- try(er <- RCurl::curlPerform(url = x, curl=auxCurlHandle, writedata = f@ref, .opts = opt))
     RCurl::close(f)
     
     # palfaro @ 2017-01-02
@@ -420,7 +427,6 @@ getNativeTemporalResolution <- function(product) {
 .getMODIS <- function(x, h, v, dates, version='005',opt, forceReDownload=TRUE,nc) {
   xx <- .modisHTTP(x,v=version,opt=opt)
   Modislist <- .getModisList(x = xx,h=h,v=v,dates=dates,opt=opt, forceReDownload=forceReDownload,nc=nc)
-  
   if (length(Modislist) == 0) stop("There is NO available images for the specified product!")
   
   cat(sum(unlist(lapply(Modislist,length))),'images are found for the specified dates!\n')
@@ -457,11 +463,10 @@ getNativeTemporalResolution <- function(product) {
     }
   }
   # This function gets the file in row i of plainModisList
-  getFile <- function(i, plainModisList, opt, forceReDownload) {
-    if (!requireNamespace('RCurl')) stop("Package RCurl is not installed")
+  getFile <- function(i, plainModisList, opt, forceReDownload, curlHandle=NULL) {
     n <- strsplit(plainModisList[i, 2],"/")[[1]]
     n <- n[length(n)]
-    if (.downloadHTTP(x = plainModisList[i, 2], filename = n, opt=opt, forceReDownload=forceReDownload)) {
+    if (.downloadHTTP(x = plainModisList[i, 2], filename = n, opt=opt, forceReDownload=forceReDownload, curlHandle=curlHandle)) {
       out <- data.frame(Date=plainModisList[i, 1], Name=n)
       cat('=')
     } else {
@@ -479,20 +484,17 @@ getNativeTemporalResolution <- function(product) {
     # palfaro @ 2017-01-09
     # The curl handles must be created in the processes that are going to use them so we create them
     # using clusterEvalQ
-    
-    parallel::clusterEvalQ(cl, expr = { .._MD_curlHandle <- RCurl::getCurlHandle()})
+    parallel::clusterEvalQ(cl, expr = { 
+      require(RCurl) 
+      curlHandleGlobal <- RCurl::getCurlHandle()
+    })
     parallel::clusterExport(cl=cl, varlist=c(".downloadHTTP"), envir=environment())
     res <- parallel::parLapplyLB(cl=cl, X = 1:nrow(plainModisList), fun = getFile, plainModisList=plainModisList, opt=opt, forceReDownload=forceReDownload)
     parallel::stopCluster(cl)
   } else {
-    # palfaro @ 2017-07-13
-    # This is a bit convoluted but we need the .rtsOptions$getOption('MD_curlHandle') created in the global environment for
-    # getModisName to find it. In the parallel case it gets created in the global environment in the clusterEvalQ call
-    # but if we call the same expression here it gets created in the current environment, thus we use assign
-    #assign(".rtsOptions$getOption('MD_curlHandle')", RCurl::getCurlHandle(), envir = .GlobalEnv)
-    #.._MD_curlHandle <<- RCurl::getCurlHandle()
-    res <- lapply(X = 1:nrow(plainModisList), FUN = getFile, plainModisList=plainModisList, opt=opt, forceReDownload=forceReDownload)
-    #rm(.._MD_curlHandle, envir = .GlobalEnv)
+    curlHandle <- RCurl::getCurlHandle()
+    res <- lapply(X = 1:nrow(plainModisList), FUN = getFile, plainModisList=plainModisList, opt=opt, 
+                  forceReDownload=forceReDownload, curlHandle=curlHandle)
   }
   
   out <- do.call('rbind', res)  
@@ -811,11 +813,7 @@ setMethod("getMODIS", "character",
             dc <- 1
             # palfaro @ 2017-07-13
             # create the curl handle for use in .downloadHTTP
-            # This is a bit convoluted but we need the .rtsOptions$getOption('MD_curlHandle') created in the global environment for
-            # getModisName to find it. In the parallel case it gets created in the global environment in the clusterEvalQ call
-            # but if we call the same expression here it gets created in the current environment, thus we use assign
-            #assign(".rtsOptions$getOption('MD_curlHandle')", RCurl::getCurlHandle(), envir = .GlobalEnv)
-            #.._MD_curlHandle <<- RCurl::getCurlHandle()
+            curlHandle <- RCurl::getCurlHandle()
             for (d in dirs) {
               dwnld <- rep(FALSE,length(Modislist[[d]]))
               cnt <- 1
@@ -823,18 +821,16 @@ setMethod("getMODIS", "character",
               for (ModisName in Modislist[[d]]) {
                 n <- strsplit(ModisName,"/")[[1]]
                 n <- n[length(n)]
-                if (.downloadHTTP(ModisName,n,opt=opt,forceReDownload=forceReDownload)) dwnld[cnt] <- TRUE
+                if (.downloadHTTP(ModisName,n,opt=opt,forceReDownload=forceReDownload, curlHandle = curlHandle)) dwnld[cnt] <- TRUE
                 cnt <- cnt + 1
               }
               out[dc,3] <- length(which(dwnld))
               dc <- dc+1
             }
-            #rm(.._MD_curlHandle, envir = .GlobalEnv)
             
             if (sum(out[,3]) > 0) {
               cat(paste('from ', sum(out[,2]),' available images, ',sum(out[,3]),' images are successfully downloaded.',sep=''))
             } else cat('Download is failed!')
-            
           }
 )
 
@@ -871,11 +867,7 @@ setMethod("getMODIS", "numeric",
             dc <- 1
             # palfaro @ 2017-07-13
             # create the curl handle for use in .downloadHTTP
-            # This is a bit convoluted but we need the .rtsOptions$getOption('MD_curlHandle') created in the global environment for
-            # getModisName to find it. In the parallel case it gets created in the global environment in the clusterEvalQ call
-            # but if we call the same expression here it gets created in the current environment, thus we use assign
-            #assign(".rtsOptions$getOption('MD_curlHandle')", RCurl::getCurlHandle(), envir = .GlobalEnv)
-            #.._MD_curlHandle <<- RCurl::getCurlHandle()
+            curlHandle <- RCurl::getCurlHandle()
             
             for (d in dirs) {
               dwnld <- rep(FALSE,length(Modislist[[d]]))
@@ -884,7 +876,7 @@ setMethod("getMODIS", "numeric",
               for (ModisName in Modislist[[d]]) {
                 n <- strsplit(ModisName,"/")[[1]]
                 n <- n[length(n)]
-                if (.downloadHTTP(ModisName,n,opt=opt,forceReDownload=forceReDownload)) {
+                if (.downloadHTTP(ModisName,n,opt=opt,forceReDownload=forceReDownload, curlHandle = curlHandle)) {
                   dwnld[cnt] <- TRUE
                   cat('=')
                 } else cat('0')
@@ -893,13 +885,11 @@ setMethod("getMODIS", "numeric",
               out[dc,3] <- length(which(dwnld))
               dc <- dc+1
             }
-            #rm(.._MD_curlHandle, envir = .GlobalEnv)
             
             cat('\n')
             if (sum(out[,3]) > 0) {
               cat(paste('from ', sum(out[,2]),' available images, ',sum(out[,3]),' images are successfully downloaded.',sep=''))
             } else cat('Download is failed!')
-            
           }
 )
 
