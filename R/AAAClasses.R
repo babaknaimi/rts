@@ -2,6 +2,7 @@
 # Date :  August 2017
 # Version 1.1
 # Licence GPL v3
+#---------------
 
 setOldClass("xts")
 setClass("RasterStackTS",
