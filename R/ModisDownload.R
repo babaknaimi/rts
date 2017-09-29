@@ -269,6 +269,7 @@ getNativeTemporalResolution <- function(product) {
             if (ce == 10) stop(paste("Download error: Server does not response!\n", getlist))
           } else { success <- TRUE }
         }
+        # Useful line for debugging. Writes the downloaded html to file to see what we are getting
         # writeLines(getlist, paste('RCache/', basename(productURL), '_', dir, '.txt', sep = ''))
         
         # palfaro @ 2017-01-17
@@ -277,10 +278,10 @@ getNativeTemporalResolution <- function(product) {
         w <- which(is.na(getlist))
         if (length(w) > 0) getlist <- getlist[-w]
         w <- unlist(lapply(lapply(getlist,function(x) strsplit(x,'\\.')[[1]]),function(x) x[length(x)] == 'hdf'))
-        if (any(w)) getlist <- getlist[w]
+        getlist <- getlist[w]
         
         if (length(getlist) > 0) {
-          # Don't cache getlist unless it has have some content, in case there's an error on the server for that 
+          # Don't cache getlist unless it has some content, in case there's an error on the server for that 
           # product/date and it gets fixed someday
           dir.create(dirname(pathCache), showWarnings=FALSE, recursive = TRUE)
           saveRDS(object = getlist, file=pathCache)
