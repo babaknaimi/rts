@@ -1,6 +1,7 @@
 # Author: Babak Naimi, naimi.b@gmail.com
-# Date :  July 2012
-# Version 1.0
+# First Date :  July 2012
+# Last Update :  March 2018
+# Version 1.1
 # Licence GPL v3
 
 
@@ -19,19 +20,36 @@ setMethod("period.apply", "RasterStackTS",
             if (length(INDEX) == 0) stop("INDEX of endpoints is out of range!")
             ep <- sort(INDEX)
             if(ep[length(ep)] != NROW(x@time)) ep <- c(ep,NROW(x@time))
+            #-------
+            .dot <- list(...)
+            if (length(.dot) > 0) {
+              .fo <- formals(FUN)
+              if (length(names(.fo)) > 1) {
+                .nfo <- names(.fo)
+                .nfo <- .nfo[2:length(.nfo)]
+                if (length(.dot) > 0 && any(.nfo %in% names(.dot))) {
+                  .nfo <- .nfo[.nfo %in% names(.dot)]
+                  for (.n in .nfo) {
+                    .fo[[.n]] <- .dot[[.n]]
+                  }
+                  formals(FUN) <- .fo
+                }
+              }
+            }
+            #--------
             
             for (i in 1:length(ep)) {
               if (i == 1) {
                 if (ep[1] == 1) epr <- 1
                 else epr <- 1:ep[1]
                 if (length(epr) == 1) xx <- subset(x@raster,1)
-                else xx <- calc(subset(x@raster,as.vector(x@time[epr])),FUN, ...)
+                else xx <- calc(subset(x@raster,as.vector(x@time[epr])),FUN)
                 xxx <- stack(xx)
                 ind <- as.character(index(x@time[ep[1]]))
               } else {
                 epr <- (ep[i-1]+1):ep[i]
                 if (length(epr) == 1) xx <- subset(x@raster,ep[i])
-                else xx <- calc(subset(x@raster,as.vector(x@time[epr])),FUN, ...)
+                else xx <- calc(subset(x@raster,as.vector(x@time[epr])),FUN)
                 xxx <- addLayer(xxx,xx)
                 ind <- c(ind,as.character(index(x@time[ep[i]])))
               }
@@ -50,18 +68,35 @@ setMethod("period.apply", "RasterBrickTS",
             ep <- sort(INDEX)
             if(ep[length(ep)] != NROW(x@time)) ep <- c(ep,NROW(x@time))
             
+            #-------
+            .dot <- list(...)
+            if (length(.dot) > 0) {
+              .fo <- formals(FUN)
+              if (length(names(.fo)) > 1) {
+                .nfo <- names(.fo)
+                .nfo <- .nfo[2:length(.nfo)]
+                if (length(.dot) > 0 && any(.nfo %in% names(.dot))) {
+                  .nfo <- .nfo[.nfo %in% names(.dot)]
+                  for (.n in .nfo) {
+                    .fo[[.n]] <- .dot[[.n]]
+                  }
+                  formals(FUN) <- .fo
+                }
+              }
+            }
+            #--------
             for (i in 1:length(ep)) {
               if (i == 1) {
                 if (ep[1] == 1) epr <- 1
                 else epr <- 1:ep[1]
                 if (length(epr) == 1) xx <- subset(x@raster,1)
-                else xx <- calc(subset(x@raster,as.vector(x@time[epr])),FUN, ...)
+                else xx <- calc(subset(x@raster,as.vector(x@time[epr])),FUN)
                 xxx <- stack(xx)
                 ind <- as.character(index(x@time[ep[1]]))
               } else {
                 epr <- (ep[i-1]+1):ep[i]
                 if (length(epr) == 1) xx <- subset(x@raster,ep[i])
-                else xx <- calc(subset(x@raster,as.vector(x@time[epr])),FUN, ...)
+                else xx <- calc(subset(x@raster,as.vector(x@time[epr])),FUN)
                 xxx <- addLayer(xxx,xx)
                 ind <- c(ind,as.character(index(x@time[ep[i]])))
               }

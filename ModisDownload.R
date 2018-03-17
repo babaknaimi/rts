@@ -1,5 +1,5 @@
 # Title:  ModisDownload 
-# Version: 7.3 (last update): March 2018
+# Version: 7.2 (last update): August 2017
 # Author: Babak Naimi (naimi.b@gmail.com), and (from version 5.4) Pablo Alfaro (ludecan@gmail.com)
 
 # Major changes have been made on this version comparing to the 2.x. Since the FTP is not supported anymore,
@@ -24,13 +24,8 @@
 # parallel is used to call parLapplyLB to do the parallel downloads
 # palfaro @ 2017-01-09
 # create a RCurl handle which will be reused between connections to enable http keepalives
-
-.eval <- function(x) {
-  eval(parse(text=x))
-}
-
-.eval('.._MD_curlHandle <- RCurl::getCurlHandle()')
-.eval('.._MD_curlHandle <<- RCurl::getCurlHandle()')
+#.._MD_curlHandle <- RCurl::getCurlHandle()
+.._MD_curlHandle <<- RCurl::getCurlHandle()
 modisProducts <- function(version=NULL) {
   #.ModisLPxxx <- NULL
   #load(system.file("external/ModisLP.RData", package="rts"))
