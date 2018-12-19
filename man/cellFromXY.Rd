@@ -12,8 +12,8 @@ Get cell number(s) of a Raster*TS object from row and column numbers or X and Y 
 }
 
 \usage{
-cellFromRowCol(object, rownr, colnr)
 cellFromXY(object, xy)
+cellFromRowCol(object, rownr, colnr)
 }
 
 \arguments{

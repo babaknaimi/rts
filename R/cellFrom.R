@@ -1,11 +1,12 @@
 # Author: Babak Naimi, naimi.b@gmail.com
 # Date :  July 2012
-# Version 1.0
+# Last Update: Oct. 2018
+# Version 1.1
 # Licence GPL v3
 
-if (!isGeneric("cellFromRowCol")) {
-  setGeneric("cellFromRowCol", function(object, rownr, colnr)
-    standardGeneric("cellFromRowCol"))
+cellFromXY <- function(object,xy) {
+  if ( missing(xy)) { stop('you must provide XY coordinates as a vector, matrix, or SpatialPoints') }
+  cellFromXY(object@raster,xy)
 }
 
 setMethod("cellFromRowCol", "RasterStackBrickTS",
@@ -14,10 +15,6 @@ setMethod("cellFromRowCol", "RasterStackBrickTS",
             as.vector(cellFromRowCol(object@raster,rownr=rownr,colnr=colnr))
           })
 #-----------
-if (!isGeneric("cellFromXY")) {
-  setGeneric("cellFromXY", function(object, xy)
-    standardGeneric("cellFromXY"))
-}
 
 setMethod("cellFromXY", "RasterStackBrickTS",
           function(object,xy) {

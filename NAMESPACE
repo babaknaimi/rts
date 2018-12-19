@@ -1,6 +1,6 @@
 import(sp)
 import("methods")
-importFrom("parallel", makeCluster,clusterExport,parLapplyLB,stopCluster,clusterEvalQ)
+importFrom("parallel", makeCluster,clusterExport,parLapplyLB,stopCluster,clusterEvalQ,parLapply)
 importFrom("RCurl",getCurlHandle)
 importFrom("grDevices", "xy.coords")
 importFrom("graphics", "abline", "axis", "box", "grid", "lines", "title")
