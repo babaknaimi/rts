@@ -1,7 +1,7 @@
 # Author: Babak Naimi, naimi.b@gmail.com
 # Date :  July 2012
-# Last Update: Oct. 2018
-# Version 1.1
+# Last Update: Feb. 2019
+# Version 1.2
 # Licence GPL v3
 
 cellFromXY <- function(object,xy) {
@@ -9,11 +9,19 @@ cellFromXY <- function(object,xy) {
   cellFromXY(object@raster,xy)
 }
 
-setMethod("cellFromRowCol", "RasterStackBrickTS",
-          function(object, rownr, colnr) {
-            if ( missing(rownr) | missing(colnr)) { stop('you must provide row and col number(s)') }
-            as.vector(cellFromRowCol(object@raster,rownr=rownr,colnr=colnr))
-          })
+cellFromRowCol <- function(object,row, col) {
+  if ( missing(row) | missing(col)) { stop('you must provide row and col number(s)') }
+  as.vector(cellFromRowCol(object@raster,row=row,col=col))
+}
+
+
+
+setMethod("cellFromRowCol", signature(object="RasterStackBrickTS", row="numeric",col="numeric"),
+          function(object, row, col,...) {
+            if ( missing(row) | missing(col)) { stop('you must provide row and col number(s)') }
+            as.vector(cellFromRowCol(object@raster,row=row,col=col))
+          }
+)
 #-----------
 
 setMethod("cellFromXY", "RasterStackBrickTS",

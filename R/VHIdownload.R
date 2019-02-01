@@ -1,7 +1,7 @@
 # Author: Babak Naimi, naimi.b@gmail.com
 # First Date :  March 2018
-# Last Update :  Oct. 2018
-# Version 1.1
+# Last Update :  June 2019
+# Version 1.2
 # Licence GPL v3
 
 
@@ -95,6 +95,7 @@ setMethod("VHPdownload", "character",
             else  x <- x[1]
             #------
             if (missing(rts)) rts <- TRUE
+            if (missing(ncore)) ncore <- 1L
             # -----
             if (requireNamespace('parallel', quietly = TRUE)) { 
               nc <- parallel::detectCores()
@@ -120,7 +121,7 @@ setMethod("VHPdownload", "character",
             dL <- as.character(.fileList$VHI_products)[w]
             if (ncore > 1L) {
               cl <- parallel::makeCluster(getOption("cl.cores", ncore))
-              parallel::clusterExport(cl, c("dL"))
+              #parallel::clusterExport(cl, c("dL"))
               
               parallel::clusterEvalQ(cl, {
                 library(RCurl)

@@ -1,7 +1,7 @@
 \name{cellFromXY}
 \alias{cellFromRowCol}
 \alias{cellFromXY}
-\alias{cellFromRowCol,RasterStackBrickTS-method}
+\alias{cellFromRowCol,RasterStackBrickTS,numeric,numeric-method}
 \alias{cellFromXY,RasterStackBrickTS-method}
 
 
@@ -13,14 +13,15 @@ Get cell number(s) of a Raster*TS object from row and column numbers or X and Y 
 
 \usage{
 cellFromXY(object, xy)
-cellFromRowCol(object, rownr, colnr)
+cellFromRowCol(object, row, col,...)
 }
 
 \arguments{
   \item{object}{ a raster time series (\code{Raster*TS}) object created by \code{\link[rts]{rts}} }
-  \item{colnr}{column number; or vector of column numbers}
-  \item{rownr}{row number; or vector of row numbers}
+  \item{col}{column number; or vector of column numbers}
+  \item{row}{row number; or vector of row numbers}
   \item{xy}{matrix of x and y coordinates, or a SpatialPoints or SpatialPointsDataFrame object}
+  \item{...}{additional arguments (none implemented)}
 }
 \details{
 These functions are essentially a wrapper to \code{\link[raster]{cellFromRowCol}} and  \code{\link[raster]{cellFromXY}}
