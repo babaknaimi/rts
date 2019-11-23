@@ -1,5 +1,5 @@
 # Title:  ModisDownload 
-# Version: 7.3 (last update): March 2018
+# Version: 7.4 (last update): November 2019
 # Author: Babak Naimi (naimi.b@gmail.com), and (from version 5.4) Pablo Alfaro (ludecan@gmail.com)
 
 # Major changes have been made on this version comparing to the 2.x. Since the FTP is not supported anymore,
@@ -422,7 +422,7 @@ getNativeTemporalResolution <- function(product) {
   return(success)
 }
 
-.getMODIS <- function(x, h, v, dates, version='005',opt, forceReDownload=TRUE,nc) {
+.getMODIS <- function(x, h, v, dates, version='006',opt, forceReDownload=TRUE,nc) {
   xx <- .modisHTTP(x,v=version,opt=opt)
   Modislist <- .getModisList(x = xx,h=h,v=v,dates=dates,opt=opt, forceReDownload=forceReDownload,nc=nc)
   
@@ -543,7 +543,7 @@ if (!isGeneric("setMRTpath")) {
 }
 
 if (!isGeneric("getMODIS")) {
-  setGeneric("getMODIS", function(x,h,v,dates,version='005',forceReDownload=TRUE,ncore='auto')
+  setGeneric("getMODIS", function(x,h,v,dates,version='006',forceReDownload=TRUE,ncore='auto')
     standardGeneric("getMODIS"))
 }
 
@@ -785,7 +785,7 @@ setMethod("reprojectHDF", "character",
 
 
 setMethod("getMODIS", "character",
-          function(x,h,v,dates,version='005',forceReDownload=TRUE,ncore='auto') {
+          function(x,h,v,dates,version='006',forceReDownload=TRUE,ncore='auto') {
             if (is.null(.rtsOptions$getOption(n = 'nasaAuth'))) stop('Downloading these data requires a NASA Earthdata Login username and password. \n To obtain a NASA Earthdata Login account, please visit: https://urs.earthdata.nasa.gov/users/new/.\n When you get your username and password, then use the setNASAauth function (only first time) to set the username and password on this machine')
             else {
               opt <- .rtsOptions$getOption(n = 'nasaAuth')
@@ -845,7 +845,7 @@ setMethod("getMODIS", "character",
 
 
 setMethod("getMODIS", "numeric",
-          function(x,h,v,dates,version='005',forceReDownload=TRUE,ncore='auto') {
+          function(x,h,v,dates,version='006',forceReDownload=TRUE,ncore='auto') {
             if (is.null(.rtsOptions$getOption(n = 'nasaAuth'))) stop('Downloading these data requires a NASA Earthdata Login username and password. \n To obtain a NASA Earthdata Login account, please visit: https://urs.earthdata.nasa.gov/users/new/.\n When you get your username and password, then use the setNASAauth function (only first time) to set the username and password on this machine')
             else {
               opt <- .rtsOptions$getOption(n = 'nasaAuth')
@@ -865,6 +865,8 @@ setMethod("getMODIS", "numeric",
               ncore <- 4
               warning('ncore is set to 4 (cannot be greater...!)')
             }
+            
+            if (missing(version)) version <- '006'
             
             xx <- .modisHTTP(x,v=version,opt=opt)
             Modislist <- .getModisList(xx,h=h,v=v,dates=dates,opt=opt,forceReDownload=forceReDownload,nc=ncore)
@@ -910,7 +912,7 @@ setMethod("getMODIS", "numeric",
 
 
 setMethod("ModisDownload", "character",
-          function(x,h,v,dates,version='005',MRTpath,mosaic=FALSE,bands_subset='',delete=FALSE,proj=FALSE,UL="",LR="",resample_type='NEAREST_NEIGHBOR',proj_type='UTM', proj_params='0 0 0 0 0 0 0 0 0 0 0 0',datum='WGS84',utm_zone=NA,pixel_size=getNativePixelSize(x),forceReDownload=TRUE,ncore='auto') {
+          function(x,h,v,dates,version='006',MRTpath,mosaic=FALSE,bands_subset='',delete=FALSE,proj=FALSE,UL="",LR="",resample_type='NEAREST_NEIGHBOR',proj_type='UTM', proj_params='0 0 0 0 0 0 0 0 0 0 0 0',datum='WGS84',utm_zone=NA,pixel_size=getNativePixelSize(x),forceReDownload=TRUE,ncore='auto') {
             
             if (is.null(.rtsOptions$getOption(n = 'nasaAuth'))) stop('Downloading these data requires a NASA Earthdata Login username and password. \n To obtain a NASA Earthdata Login account, please visit: https://urs.earthdata.nasa.gov/users/new/.\n When you get your username and password, then use the setNASAauth function (only first time) to set the username and password on this machine')
             else {
@@ -920,6 +922,7 @@ setMethod("ModisDownload", "character",
                                         followlocation=TRUE)
             }
             
+            if (missing(version)) version <- '006'
             
             if (!missing(MRTpath) && !is.null(MRTpath)) {
               setMRTpath(MRTpath,echo=FALSE)
@@ -1006,7 +1009,7 @@ setMethod("ModisDownload", "character",
 
 
 setMethod("ModisDownload", "numeric",
-          function(x,h,v,dates,version='005',MRTpath,mosaic=FALSE,bands_subset='',delete=FALSE,proj=FALSE,UL="",LR="",resample_type='NEAREST_NEIGHBOR',proj_type='UTM', proj_params='0 0 0 0 0 0 0 0 0 0 0 0',datum='WGS84',utm_zone=NA,pixel_size,forceReDownload=TRUE,ncore='auto') {
+          function(x,h,v,dates,version='006',MRTpath,mosaic=FALSE,bands_subset='',delete=FALSE,proj=FALSE,UL="",LR="",resample_type='NEAREST_NEIGHBOR',proj_type='UTM', proj_params='0 0 0 0 0 0 0 0 0 0 0 0',datum='WGS84',utm_zone=NA,pixel_size,forceReDownload=TRUE,ncore='auto') {
             if (is.null(.rtsOptions$getOption(n = 'nasaAuth'))) stop('Downloading these data requires a NASA Earthdata Login username and password. \n To obtain a NASA Earthdata Login account, please visit: https://urs.earthdata.nasa.gov/users/new/.\n When you get your username and password, then use the setNASAauth function (only first time) to set the username and password on this machine')
             else {
               opt <- .rtsOptions$getOption(n = 'nasaAuth')
@@ -1029,6 +1032,8 @@ setMethod("ModisDownload", "numeric",
                 Sys.setenv(MRT_DATA_DIR=.getMRTdata(MRTpath))
               }
             }
+            
+            if (missing(version)) version <- '006'
             
             if (requireNamespace('parallel', quietly = TRUE)) { 
               nc <- parallel::detectCores()
