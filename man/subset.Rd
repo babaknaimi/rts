@@ -1,6 +1,7 @@
 \name{subset}
 \alias{subset}
 \alias{subset,RasterStackBrickTS-method}
+\alias{subset,SpatRasterTS-method}
 
 
 \title{Subset layers in a raster time series object}

@@ -6,6 +6,7 @@
 \alias{plot,RasterStackBrickTS-method}
 \alias{plot,rts-method}
 \alias{plot,RasterStackBrickTS,ANY-method}
+\alias{plot,SpatRasterTS,ANY-method}
 \alias{plot,rts,ANY-method}
 
 \title{Plot raster time series}

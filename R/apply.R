@@ -59,4 +59,37 @@ setMethod("apply.yearly", "RasterStackBrickTS",
             ep <- endpoints(x@time, "years")
             period.apply(x, ep, FUN, ...)
           })
+#-------------
+
+setMethod("apply.daily", "SpatRasterTS",
+          function(x, FUN, ...) {
+            ep <- endpoints(x@time, "days")
+            period.apply(x, ep, FUN, ...)
+          })
+
+setMethod("apply.weekly", "SpatRasterTS",
+          function(x, FUN, ...) {
+            ep <- endpoints(x@time, "weeks")
+            period.apply(x, ep, FUN, ...)
+          })
+
+
+setMethod("apply.monthly", "SpatRasterTS",
+          function(x, FUN, ...) {
+            ep <- endpoints(x@time, "months")
+            period.apply(x, ep, FUN, ...)
+          })
+
+setMethod("apply.quarterly", "SpatRasterTS",
+          function(x, FUN, ...) {
+            ep <- endpoints(x@time, "quarters")
+            period.apply(x, ep, FUN, ...)
+          })
+
+
+setMethod("apply.yearly", "SpatRasterTS",
+          function(x, FUN, ...) {
+            ep <- endpoints(x@time, "years")
+            period.apply(x, ep, FUN, ...)
+          })
 

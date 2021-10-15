@@ -2,7 +2,7 @@
 
 \alias{endpoints}
 \alias{endpoints,RasterStackBrickTS-method}
-
+\alias{endpoints,SpatRasterTS-method}
 
 \title{Locate endpoints by time}
 

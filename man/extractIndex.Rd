@@ -7,6 +7,11 @@
 \alias{[,RasterStackBrickTS,numeric,ANY-method}
 \alias{[,RasterStackBrickTS,Extent,ANY-method}
 
+\alias{[,SpatRasterTS,Spatial,ANY-method}
+\alias{[,SpatRasterTS,SpatVector,ANY-method}
+\alias{[,SpatRasterTS,numeric,ANY-method}
+\alias{[,SpatRasterTS,SpatExtent,ANY-method}
+
 
 \title{Exrtract values from raster time series}
 

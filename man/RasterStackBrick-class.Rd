@@ -5,11 +5,14 @@
 \alias{RasterStackTS-class}
 \alias{RasterBrickTS-class}
 \alias{RasterStackBrickTS-class}
+\alias{SpatRasterTS-class}
+
 \alias{rts-class}
 \alias{xts-class}
 
 \alias{show,RasterStackTS-method}
 \alias{show,RasterBrickTS-method}
+\alias{show,SpatRaster-method}
 
 \title{ rts classes}
 

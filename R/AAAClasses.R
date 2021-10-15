@@ -1,6 +1,7 @@
 # Author: Babak Naimi, naimi.b@gmail.com
 # Date :  August 2017
-# Version 1.1
+# Last Update :  October 2021
+# Version 1.2
 # Licence GPL v3
 #---------------
 
@@ -21,6 +22,15 @@ setClass("RasterBrickTS",
            return (nlayers(object@raster) == length(object@time))
          }  
          )
+
+
+setClass("SpatRasterTS",
+         representation(raster="SpatRaster",
+                        time="xts"),
+         validity=function(object){
+           return (nlyr(object@raster) == length(object@time))
+         }  
+)
 
 
 setClassUnion("RasterStackBrickTS", c("RasterStackTS", "RasterBrickTS"))

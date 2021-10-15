@@ -1,6 +1,7 @@
 # Author: Babak Naimi, naimi.b@gmail.com
 # Date :  July. 2015
-# Version 1.1
+# Last Update :  Oct. 2021
+# Version 1.2
 # Licence GPL v3
 
 
@@ -40,6 +41,26 @@ setMethod("plot", signature(x='rts',y='ANY'),
 
 
 setMethod("plot", signature(x='RasterStackBrickTS','ANY'),
+          function(x, y,...) {
+            if (missing(y)) y <- as.vector(x@time)
+            if (!inherits(try(i <- x@time[y],TRUE), "try-error")) {
+              if (length(i) > 0) {
+                y <- as.vector(i)
+              } else {
+                warning("Subscript out of bounds,y is ignored!")
+                y <- as.vector(x@time)
+              }
+            } else {
+              warning("No raster is returned for specified time range, y is ignored!")
+              y <- as.vector(x@time)
+            }
+            n <- as.character(index(x@time))[y]
+            raster::plot(x=x@raster,y=y,main=n,...)
+          }
+)
+#------
+
+setMethod("plot", signature(x='SpatRasterTS','ANY'),
           function(x, y,...) {
             if (missing(y)) y <- as.vector(x@time)
             if (!inherits(try(i <- x@time[y],TRUE), "try-error")) {

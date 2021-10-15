@@ -2,7 +2,7 @@
 \alias{write.rts}
 
 \alias{write.rts,RasterStackBrickTS,character-method}
-
+\alias{write.rts,SpatRasterTS,character-method}
 
 
 \title{Write raster time Series data to a file}
@@ -27,6 +27,8 @@ write.rts(x, filename, overwrite=FALSE, ...)
 }
 \details{
 This function writes a raster time series object into a directory which named as is specified in the \code{filename} argument. To write the raster data, \code{\link[raster]{writeRaster}} in the package \pkg{raster} is used. The function writes the time information into a separate ascii file.
+
+
 }
 
 \value{

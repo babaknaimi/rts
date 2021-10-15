@@ -8,6 +8,10 @@
 \alias{extract,RasterStackBrickTS,Extent-method}
 \alias{extract,RasterStackBrickTS,numeric-method}
 
+\alias{extract,SpatRasterTS,SpatVector-method}
+\alias{extract,SpatRasterTS,SpatExtent-method}
+\alias{extract,SpatRasterTS,numeric-method}
+
 
 \title{Extract values from raster time series}
 

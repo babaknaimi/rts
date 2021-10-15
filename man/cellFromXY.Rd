@@ -4,6 +4,9 @@
 \alias{cellFromRowCol,RasterStackBrickTS,numeric,numeric-method}
 \alias{cellFromXY,RasterStackBrickTS-method}
 
+\alias{cellFromRowCol,SpatRasterTS,numeric,numeric-method}
+\alias{cellFromXY,SpatRasterTS-method}
+
 
 \title{Get cell number from row, column or XY}
 
@@ -11,18 +14,25 @@
 Get cell number(s) of a Raster*TS object from row and column numbers or X and Y coordinates.   
 }
 
+
 \usage{
-cellFromXY(object, xy)
-cellFromRowCol(object, row, col,...)
+\S4method{cellFromRowCol}{RasterStackBrickTS,numeric,numeric}(object, row, col)
+\S4method{cellFromXY}{RasterStackBrickTS}(object, xy)
+
+\S4method{cellFromRowCol}{SpatRasterTS,numeric,numeric}(object, row, col)
+\S4method{cellFromXY}{SpatRasterTS}(object, xy)
 }
 
+
 \arguments{
-  \item{object}{ a raster time series (\code{Raster*TS}) object created by \code{\link[rts]{rts}} }
-  \item{col}{column number; or vector of column numbers}
-  \item{row}{row number; or vector of row numbers}
-  \item{xy}{matrix of x and y coordinates, or a SpatialPoints or SpatialPointsDataFrame object}
-  \item{...}{additional arguments (none implemented)}
+  \item{object}{SpatRaster}
+  \item{col}{integer. column number(s)}
+  \item{row}{integer row number(s)}
+  \item{xy}{matrix of x and y coordinates}
 }
+  
+
+
 \details{
 These functions are essentially a wrapper to \code{\link[raster]{cellFromRowCol}} and  \code{\link[raster]{cellFromXY}}
 in \pkg{raster} package, work with \code{Raster*TS} objects.

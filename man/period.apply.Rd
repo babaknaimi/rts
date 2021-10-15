@@ -3,6 +3,7 @@
 \alias{period.apply}
 \alias{period.apply,RasterStackTS-method}
 \alias{period.apply,RasterBrickTS-method}
+\alias{period.apply,SpatRasterTS-method}
 
 \title{Apply a function over specified time intervals}
 

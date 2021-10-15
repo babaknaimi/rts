@@ -1,7 +1,7 @@
 # Author: Babak Naimi, naimi.b@gmail.com
 # First Date :  March 2018
-# Last Update :  June 2019
-# Version 1.2
+# Last Update :  Oct. 2021
+# Version 1.3
 # Licence GPL v3
 
 
@@ -140,11 +140,11 @@ setMethod("VHPdownload", "character",
             else stop('\nNone of the files are downloaded!!')
             
             if (rts) {
-              r <- try(rts(stack(as.character(.fileList$VHI_products[w])[ww]),.fileList$date[w][ww]),silent = TRUE)
+              r <- try(rts(rast(as.character(.fileList$VHI_products[w])[ww]),.fileList$date[w][ww]),silent = TRUE)
               if (inherits(r,'try-error')) cat('Raster Time Series is not created, but the files are downloaded in the working directory!')
               else {
-                for (i in 1:nlayers(r@raster)) {
-                  r@raster@layers[[i]]@file@nodatavalue <- -9999
+                for (i in 1:nlyr(r@raster)) {
+                  NAflag(r@raster) <- -9999
                 }
                 return(r)
               }

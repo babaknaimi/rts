@@ -2,6 +2,7 @@
 
 \docType{methods}
 \alias{[[,RasterStackBrickTS,ANY,ANY-method}
+\alias{[[,SpatRasterTS,ANY,ANY-method}
 
 \title{Subset layers in a raster time series object by index}
 

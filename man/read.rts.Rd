@@ -12,14 +12,17 @@ Read a raster time series object from a file.
 }
 
 \usage{
-read.rts(filename)
+read.rts(filename,...)
 }
 
 \arguments{
   \item{filename}{ Filename (character)}
+  \item{...}{ see details}
   }
 \details{
-This function reads a raster time series object which has been writen by \code{\link[rts]{write.rts}}. Instead of \code{read.rts}, the \code{rts} function can be used (usage: \code{rts(filename)}). 
+This function reads a raster time series object which has been writen by \code{\link[rts]{write.rts}}. Instead of \code{read.rts}, the \code{rts} function can be used (usage: \code{rts(filename)}).
+
+By default, the Raster Time Series is read as the class of \code{SpatRasterTS}, but the user can provide \code{cls} argument to specify a different rts class (e.g., \code{cls='RasterBrickTS'})
 }
 
 \value{

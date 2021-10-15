@@ -3,6 +3,7 @@
 
 \alias{rts,RasterStack,ANY-method}
 \alias{rts,RasterBrick,ANY-method}
+\alias{rts,SpatRaster,ANY-method}
 \alias{rts,character,ANY-method}
 \alias{rts,xts,ANY-method}
 \alias{rts,character,missing-method}
@@ -14,12 +15,13 @@ Constructor function to create a raster time series (\code{Raster*TS}) object. r
 }
 
 \usage{
-rts(x, time)
+rts(x, time,...)
 }
 
 \arguments{
   \item{x}{A character vector including names of image/raster files, or \code{RasterStack} or \code{RasterBrick} object, or the name (character) of a raster time series file}
   \item{time}{a vector holding date/time data with the same length as rasters in \code{Raster*} object or name of files in character vector}
+  \item{...}{see details}
   
   
 }
@@ -28,6 +30,9 @@ A raster time series object is created by combining a \code{RasterStack} or \cod
 \code{RasterStack} or \code{RasterBrick} can be created by using \code{\link[raster]{stack}} and \code{\link[raster]{brick}} functions, respectively in \code{raster-package}. If a character vector including the name of raster files is used for \code{x}, \code{stack} function is internally called by \code{rts}. \code{time} information is handled by \code{xts} object. The date/time values in the vector of \code{time} should be correspond to the raster files (i.e. first date/time for first raster, ...) and have the same length as the number of rasters in \code{x}. 
 
 If a name of a raster time series file is provided for the \code{x} argument, it acts the same as code{\link[rts]{read.rts}}.
+
+If \code{x} is the name of Raster Time Series file (a character), it calls \code{\link[rts]{read.rts}} to read the file. By default, the Raster Time Series is read as the class of \code{SpatRasterTS}, but the user can provide \code{cls} argument to specify a different rts class (e.g., \code{cls='RasterBrickTS'})
+
 }
 
 \value{

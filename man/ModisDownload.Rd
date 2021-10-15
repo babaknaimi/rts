@@ -33,11 +33,11 @@ setMRTpath(MRTpath,update,...)
 
 ModisDownload(x,h,v,dates, ...)
 
-getMODIS(x,h,v,dates,version='005',forceReDownload=TRUE,ncore='auto')
+getMODIS(x,h,v,dates,version='006',forceReDownload=TRUE,ncore='auto')
 
 mosaicHDF(hdfNames,filename,MRTpath,bands_subset,delete=FALSE)
 
-reprojectHDF(hdfName,filename,MRTpath,...)
+reprojectHDF(hdfName,crs,subset,resample_method,filename,...)
 
 modisProducts(version=NULL)
 
@@ -55,6 +55,9 @@ getNativeTemporalResolution(product)
   \item{v}{ see the above descriptopn for \code{h} }
   \item{dates}{ a character vector with the length of one or two, specifiying an individual date or a range of dates as the form of \code{c(from, to)}}
   \item{hdfName}{the name of hdf file}
+  \item{crs}{coordinate reference system definiation (or a SpatRaster defines definition of new Raster for resampling)}
+  \item{subset}{integer vector specifies the layer number for subsetting bands}
+  \item{resample_method}{resample method for reprojection based on GDAL, can be one of "near","bilinear","cubic",or "cubicspline" (default: "near")}
   \item{hdfNames}{the names of hdf files}
   \item{MRTpath}{Path to the bin folder into the installed directory of MRT software. It is needed only if you need to mosaic and/or reproject the images. Example: MRTpath="d:/MRT/bin"}
   \item{filename}{ the name of new file}
@@ -77,7 +80,7 @@ getNativeTemporalResolution(product)
   
   - \code{LR}: Optional. Lower right coordinate(x,y). Only if you want to spatially subset your images.
   
-  - \code{resample_type}: Resampling kernel type ("CUBIC_CONVOLUTION", "NEAREST_NEIGHBOR", or "BILINEAR"). The default is "NEAREST_NEIGHBOR".
+  - \code{resample_type}: Resampling kernel type for MRT ("CUBIC_CONVOLUTION", "NEAREST_NEIGHBOR", or "BILINEAR"). The default is "NEAREST_NEIGHBOR".
   
   - \code{proj_type}: Output projection short name. Valid values are "AEA" (Albers EqualArea), "ER" (Equirectangular), "GEO" (Geographic), "IGH" (Interrupted Goode Homolosine), "HAM" (Hammer), "ISIN" (Integerized Sinusoidal), "LA" (Lambert Azimuthal Equal Area), "LCC" (Lambert Conformal Conic), "MERCAT" (Mercator), "MOL" (Molleweide), "PS" (Polar Stereographic), "SIN" (Sinusoidal), "TM" (Transverse Mercator), and "UTM" (Universal Transverse Mercator).
   

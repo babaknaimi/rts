@@ -1,6 +1,7 @@
 # Author: Babak Naimi, naimi.b@gmail.com
 # Date :  July 2012
-# Version 1.0
+# Last Update :  October 2021
+# Version 1.1
 # Licence GPL v3
 
 
@@ -14,3 +15,11 @@
 }
 
 
+`index.SpatRasterTS` <- function(x,...){
+  index(x@time,...)
+}
+
+
+`index<-.SpatRasterTS` <- function(x,value){
+  index(x@time) <- value
+}

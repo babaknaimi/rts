@@ -2,7 +2,9 @@
 \alias{index}
 \alias{index<-}
 \alias{index.RasterStackBrickTS}
+\alias{index.SpatRasterTS}
 \alias{index<-.RasterStackBrickTS}
+\alias{index<-.SpatRasterTS}
 
 
 \title{Extracting and replacing the index of raster time series}

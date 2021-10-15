@@ -11,6 +11,12 @@
 \alias{apply.quarterly,RasterStackBrickTS-method}
 \alias{apply.yearly,RasterStackBrickTS-method}
 
+\alias{apply.daily,SpatRasterTS-method}
+\alias{apply.weekly,SpatRasterTS-method}
+\alias{apply.monthly,SpatRasterTS-method}
+\alias{apply.quarterly,SpatRasterTS-method}
+\alias{apply.yearly,SpatRasterTS-method}
+
 
 \title{Apply a function over calendar periods}
 
