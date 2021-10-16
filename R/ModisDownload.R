@@ -1,5 +1,5 @@
 # Title:  ModisDownload 
-# Version: 7.4 (last update): November 2019
+# Version: 7.5 (last update): Oct. 2021
 # Author: Babak Naimi (naimi.b@gmail.com), and (from version 5.4) Pablo Alfaro (ludecan@gmail.com)
 
 # Major changes have been made on this version comparing to the 2.x. Since the FTP is not supported anymore,

@@ -189,4 +189,4 @@ ModisDownload(x=x,h=c(17,18),v=c(4,5),dates=c('2011.05.01','2011.05.31'),MRTpath
 
 }
 
-\keyword{ utilities }
+\keyword{ spatial }

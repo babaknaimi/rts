@@ -1,8 +1,8 @@
 Package: rts
 Type: Package
 Title: Raster Time Series Analysis
-Version: 1.1-1
-Date: 2021-10-14
+Version: 1.1-2
+Date: 2021-10-16
 Author: Babak Naimi
 Depends:  R (>= 3.5.0), terra, xts, 
 Imports: methods, sp (>= 1.4.1), zoo, RCurl, raster

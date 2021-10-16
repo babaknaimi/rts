@@ -70,4 +70,5 @@ rt
 
 }
 
-\keyword{ write, write raster time series}
+\keyword{ write }
+\keyword{ raster }

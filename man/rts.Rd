@@ -76,4 +76,5 @@ plot(rt)
 
 }
 
-\keyword{ raster, time series }
+\keyword{ raster }
+\keyword{ time series }

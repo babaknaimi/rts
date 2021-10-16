@@ -52,4 +52,5 @@ rt <- rts(file)
 
 }
 
-\keyword{ write, write raster time series}
+\keyword{ write }
+\keyword{ raster }

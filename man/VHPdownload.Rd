@@ -91,4 +91,6 @@ plot(vci[[1:2]])
 
 }
 
-\keyword{ utilities }
+\keyword{ spatial }
+\keyword{ map }
+\keyword{ download }

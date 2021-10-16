@@ -62,4 +62,4 @@ cellFromXY(rt,c(645000,57345000))
 
 }
 
-\keyword{ spatial }
+\keyword{spatial}
