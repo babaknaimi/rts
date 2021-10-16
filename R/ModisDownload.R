@@ -1,5 +1,5 @@
 # Title:  ModisDownload 
-# Version: 7.5 (last update): Oct. 2021
+# Version: 7.6 (last update): July 2022
 # Author: Babak Naimi (naimi.b@gmail.com), and (from version 5.4) Pablo Alfaro (ludecan@gmail.com)
 
 # Major changes have been made on this version comparing to the 2.x. Since the FTP is not supported anymore,
@@ -171,7 +171,7 @@ getNativeTemporalResolution <- function(product) {
       # palfaro @ 2017-01-09
       items <- try(strsplit(RCurl::getURL(x,.opts = opt), "\r*\n")[[1]],silent=TRUE)
       
-      if (class(items) == "try-error" || (length(items) < 30 && length(grep(pattern = serverErrorsPattern, items)) > 0)) {
+      if (inherits(items,"try-error") || (length(items) < 30 && length(grep(pattern = serverErrorsPattern, items)) > 0)) {
         Sys.sleep(15)
         ce <- ce + 1
         if (ce == (try.nr+1)) stop("Download error: Server does not response!")
@@ -263,7 +263,7 @@ getNativeTemporalResolution <- function(product) {
           # palfaro @ 2017-01-09
           # reuse MD_curlHandle to enable http keepalive
           getlist <- try(strsplit(RCurl::getURL(paste(productURL,dir, "/", sep=""),.opts = opt, curl = RCurl::getCurlHandle()), "\r*\n")[[1]],silent=TRUE)
-          if (class(getlist) == "try-error" || (length(getlist) < 30 && length(grep(pattern = serverErrorsPattern, getlist)) > 0)) {
+          if (inherits(getlist,"try-error") || (length(getlist) < 30 && length(grep(pattern = serverErrorsPattern, getlist)) > 0)) {
             Sys.sleep(15)
             ce <- ce + 1
             if (ce == 10) stop(paste("Download error: Server does not response!\n", getlist))
@@ -412,7 +412,7 @@ getNativeTemporalResolution <- function(product) {
       class(er2) <- "try-error"
     }
     
-    if (class(er2) == "try-error" || er != 0) {
+    if (inherits(er2,"try-error") || er != 0) {
       nRetries <- nRetries + 1
       Sys.sleep(secondsBetweenRetries)
     } else { success <- TRUE }

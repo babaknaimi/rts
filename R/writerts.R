@@ -1,7 +1,7 @@
 # Author: Babak Naimi, naimi.b@gmail.com
 # Date :  November 2012
-# Last Update :  Oct 2021
-# Version 1.2
+# Last Update :  July 2022
+# Version 1.4
 # Licence GPL v3
 
 
@@ -32,8 +32,8 @@ setMethod ('write.rts' , signature(x='RasterStackBrickTS', filename='character')
              if (.fileBase(filename,overwrite=overwrite)) {
                writeRaster(rast(x@raster),paste(filename,'/',basename(filename),'.tif',sep=""),datatype=datatype,...)
                write(paste("[General]\nCreator= R package 'rts'\ncreated= ",Sys.time(),
-                           "\n[time]\ntclass = ",attr(x@time,"tclass")[1],
-                           "\ntzone = ",attr(x@time,"tzone"),"\n[Data]",sep=""),
+                           "\n[time]\ntclass = ",attr(attributes(x@time)[[2]],'tclass')[1],
+                           "\ntzone = ",attr(attributes(x@time)[[2]],'tzone'),"\n[Data]",sep=""),
                      file=paste(filename,'/',basename(filename),'.rts',sep=""))
                write.table(data.frame(strftime(index(x@time)),as.vector(x@time)),
                            row.names=F,file=paste(filename,'/',basename(filename),'.rts',sep=""),
@@ -47,10 +47,10 @@ setMethod ('write.rts' , signature(x='SpatRasterTS', filename='character'),
            function (x, filename, overwrite=FALSE, datatype='FLT4S',...) {
              if (missing(filename)) stop("filename is not specified!")
              if (.fileBase(filename,overwrite=overwrite)) {
-               writeRaster(x@raster,paste(filename,'/',basename(filename),'.tif',sep=""),format="raster",datatype=datatype,...)
+               writeRaster(x@raster,paste(filename,'/',basename(filename),'.tif',sep=""),datatype=datatype,...)
                write(paste("[General]\nCreator= R package 'rts'\ncreated= ",Sys.time(),
-                           "\n[time]\ntclass = ",attr(x@time,"tclass")[1],
-                           "\ntzone = ",attr(x@time,"tzone"),"\n[Data]",sep=""),
+                           "\n[time]\ntclass = ",attr(attributes(x@time)[[2]],'tclass')[1],
+                           "\ntzone = ",attr(attributes(x@time)[[2]],'tzone'),"\n[Data]",sep=""),
                      file=paste(filename,'/',basename(filename),'.rts',sep=""))
                write.table(data.frame(strftime(index(x@time)),as.vector(x@time)),
                            row.names=F,file=paste(filename,'/',basename(filename),'.rts',sep=""),
@@ -90,6 +90,8 @@ setMethod ('read.rts' ,signature(filename='character'),
                if (tclass == "Date") time <- as.Date(dt[,1],tz=ifelse(is.na(tzone),"",tzone))
                if (tclass == "yearmon") time <- as.yearmon(dt[,1])
                if (tclass == "yearqtr") time <- as.yearqtr(dt[,1])
+               if (tclass == "") time <- as.Date(dt[,1],tz=ifelse(is.na(tzone),"",tzone))
+               
                if (!is.null(cls)) {
                  if (cls == "SpatRasterTS") {
                    o <- new("SpatRasterTS")

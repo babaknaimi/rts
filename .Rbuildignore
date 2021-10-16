@@ -1,0 +1,8 @@
+^.*\.Rproj$
+^\.Rproj\.user$
+.netrc
+^appveyor\.yml$
+^\.travis\.yml$
+README.md
+README.Rmd
+README_files

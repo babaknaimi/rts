@@ -1,17 +1,26 @@
 # Author: Babak Naimi, naimi.b@gmail.com
 # First Date :  March 2018
 # Last Update :  Oct. 2021
-# Version 1.3
+# Version 1.4
 # Licence GPL v3
 
 
 .updateVHIfileList <- function() {
-  .website <- 'ftp://ftp.star.nesdis.noaa.gov/pub/corp/scsb/wguo/data/Blended_VH_4km/geo_TIFF/'
-  .vhiList <- RCurl::getURL(.website)
-  .vhiList <- strsplit(.vhiList,'\n')[[1]]
+  # .website <- 'ftp://ftp.star.nesdis.noaa.gov/pub/corp/scsb/wguo/data/Blended_VH_4km/geo_TIFF/'
+  # .vhiList <- RCurl::getURL(.website)
+  # .vhiList <- strsplit(.vhiList,'\n')[[1]]
+  # .vhiList <- lapply(.vhiList,function(s) strsplit(s,' ')[[1]])
+  # .vhiList <- unlist(lapply(.vhiList,function(s) s[length(s)]))
+  # .Prdoucts <- unlist(lapply(.vhiList,function(s) strsplit(s,'\\.')[[1]][7]))
+  .website <- "https://www.star.nesdis.noaa.gov/pub/corp/scsb/wguo/data/Blended_VH_4km/geo_TIFF/"
   .vhiList <- lapply(.vhiList,function(s) strsplit(s,' ')[[1]])
-  .vhiList <- unlist(lapply(.vhiList,function(s) s[length(s)]))
-  .Prdoucts <- unlist(lapply(.vhiList,function(s) strsplit(s,'\\.')[[1]][7]))
+  .vhiList <- .vhiList[-c(1:11)]
+  .vhiList <- unlist(lapply(.vhiList,function(s) s[5]))
+  .vhiList <- sapply(.vhiList,function(s) strsplit(s,'>')[[1]][2])
+  .vhiList <- sapply(.vhiList,function(s) strsplit(s,'<')[[1]][1])
+  .vhiList <- .vhiList[!is.na(.vhiList)]
+  .Prdoucts <- .vhiList[.vhiList != ""]
+  
   .d <- strsplit(.vhiList,'\\.')
   .d <- unlist(lapply(.d,function(x) .strRM(x[5])))
   .d <- as.Date(unlist(lapply(.d,.yw2ymd)))
@@ -77,10 +86,12 @@
 
 .getVHI <- function(x) {
   f = RCurl::CFILE(x, mode="wb")
-  xx <- paste0('ftp://ftp.star.nesdis.noaa.gov/pub/corp/scsb/wguo/data/Blended_VH_4km/geo_TIFF/',x)
+  #xx <- paste0('ftp://ftp.star.nesdis.noaa.gov/pub/corp/scsb/wguo/data/Blended_VH_4km/geo_TIFF/',x)
   #xx <- paste0('ftp://ftp.star.nesdis.noaa.gov/pub/corp/scsb/wguo/data/VHP_4km/geo_TIFF/',x)
+  xx <- paste0("https://www.star.nesdis.noaa.gov/pub/corp/scsb/wguo/data/Blended_VH_4km/geo_TIFF/",x)
   er2 <- try(RCurl::curlPerform(url = xx, curl=RCurl::getCurlHandle(), writedata = f@ref))
   RCurl::close(f)
+  cat('=')
 }
 #---------
 
@@ -119,6 +130,7 @@ setMethod("VHPdownload", "character",
             #----------
             w <- .getProductIndex(.fileList$VHI_products,x)
             dL <- as.character(.fileList$VHI_products)[w]
+            cat('\n')
             if (ncore > 1L) {
               cl <- parallel::makeCluster(getOption("cl.cores", ncore))
               #parallel::clusterExport(cl, c("dL"))

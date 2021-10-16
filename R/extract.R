@@ -1,6 +1,7 @@
 # Author: Babak Naimi, naimi.b@gmail.com
 # Date :  July 2015
-# Version 1.1
+# last Update: March 2023
+# Version 1.3
 # Licence GPL v3
 
 
@@ -70,20 +71,15 @@ setMethod("[", c("RasterStackBrickTS", "numeric","ANY"),
 #-------------
 
 setMethod("[", c("SpatRasterTS", "Spatial","ANY"),
-          function(x, i, j, drop=TRUE) {
+          function(x, i, j) {
             if (!missing(j)) {
               if (!inherits(try(j <- x@time[j],TRUE), "try-error")) {
                 if (length(j) > 0) {
-                  if (drop) {
-                    x <- x@raster[[as.vector(j)]][vect(i),drop=drop]
-                    rts(xts(t(x),index(j)))
-                  } else {
-                    x <- x@raster[[as.vector(j)]][vect(i),drop=drop]
-                    if (length(j) == 1) {
-                      names(x) <- as.character(index(j))
-                      x
-                    } else rts(x,index(j))  
-                  }
+                  x <- x@raster[[as.vector(j)]][vect(i)]
+                  if (length(j) == 1) {
+                    names(x) <- as.character(index(j))
+                    x
+                  } else rts(x,index(j))  
                 } else {
                   stop("The specified range for time is out of subscribtion")
                 }
@@ -91,30 +87,21 @@ setMethod("[", c("SpatRasterTS", "Spatial","ANY"),
                 stop("Problem with specified time range!")
               }
             } else {
-              if(drop){
-                rts(xts(t(x@raster[vect(i), drop=drop])[as.vector(x@time),],index(x@time)))
-              } else {
-                rts(x@raster[vect(i), drop=drop],index(x@time)[as.vector(x@time)])
-              }
+              rts(xts(t(x@raster[vect(i)])[as.vector(x@time),],index(x@time)))
             }
           })
 #---------
 
 setMethod("[", c("SpatRasterTS", "SpatVector","ANY"),
-          function(x, i, j, drop=TRUE) {
+          function(x, i, j) {
             if (!missing(j)) {
               if (!inherits(try(j <- x@time[j],TRUE), "try-error")) {
                 if (length(j) > 0) {
-                  if (drop) {
-                    x <- x@raster[[as.vector(j)]][i,drop=drop]
-                    rts(xts(t(x),index(j)))
-                  } else {
-                    x <- x@raster[[as.vector(j)]][i,drop=drop]
-                    if (length(j) == 1) {
-                      names(x) <- as.character(index(j))
-                      x
-                    } else rts(x,index(j))  
-                  }
+                  x <- x@raster[[as.vector(j)]][i]
+                  if (length(j) == 1) {
+                    names(x) <- as.character(index(j))
+                    x
+                  } else rts(x,index(j))  
                 } else {
                   stop("The specified range for time is out of subscribtion")
                 }
@@ -122,31 +109,22 @@ setMethod("[", c("SpatRasterTS", "SpatVector","ANY"),
                 stop("Problem with specified time range!")
               }
             } else {
-              if(drop){
-                rts(xts(t(x@raster[i, drop=drop])[as.vector(x@time),],index(x@time)))
-              } else {
-                rts(x@raster[i, drop=drop],index(x@time)[as.vector(x@time)])
-              }
+              rts(xts(t(x@raster[i])[as.vector(x@time),],index(x@time)))
             }
           })
 
 #-------
 
 setMethod("[", c("SpatRasterTS", "numeric","ANY"),
-          function(x, i, j ,drop=TRUE) {
+          function(x, i, j) {
             if (!missing(j)) {
               if (!inherits(try(j <- x@time[j],T), "try-error")) {
                 if (length(j) > 0) {
-                  if (drop) {
-                    x <- extract(x@raster[[as.vector(j)]],i,drop=drop)
-                    rts(xts(t(x),index(j)))
-                  } else {
-                    x <- extract(x@raster[[as.vector(j)]],i,drop=drop)
-                    if (length(j) == 1) {
-                      names(x) <- as.character(index(j))
-                      x
-                    } else rts(x,index(j))  
-                  }
+                  x <- extract(x@raster[[as.vector(j)]],i)
+                  if (length(j) == 1) {
+                    names(x) <- as.character(index(j))
+                    x
+                  } else rts(x,index(j))  
                 } else {
                   stop("The specified range for time is out of subscribtion")
                 }
@@ -155,12 +133,8 @@ setMethod("[", c("SpatRasterTS", "numeric","ANY"),
               }
             } else {
               
-              if(drop){
-                if (length(i) > 1) rts(xts(t(extract(x@raster,i,drop=drop))[as.vector(x@time),],index(x@time)))
-                else rts(xts(t(extract(x@raster,i,drop=drop))[as.vector(x@time)],index(x@time)))
-              } else {
-                rts(extract(x@raster,i,drop=drop),index(x@time)[as.vector(x@time)])
-              }
+              if (length(i) > 1) rts(xts(t(extract(x@raster,i))[as.vector(x@time),],index(x@time)))
+              else rts(xts(t(extract(x@raster,i))[as.vector(x@time)],index(x@time)))
             }
           })
 #---------
@@ -238,17 +212,12 @@ setMethod("[", c("RasterStackBrickTS", "Extent","ANY"),
 
 
 setMethod("[", c("SpatRasterTS", "SpatExtent","ANY"),
-          function(x, i, j ,drop=TRUE) {
+          function(x, i, j ) {
             if (!missing(j)){
               if (!inherits(try(j <- x@time[j],T), "try-error")) {
                 if (length(j) > 0) {
-                  if (drop) {
-                    x <- x@raster[[as.vector(j)]][i,drop=TRUE]
-                    rts(xts(t(x),index(j)))
-                  } else {
-                    x <- x@raster[[as.vector(j)]][i,drop=FALSE]
-                    rts(x,index(j))  
-                  }
+                  x <- x@raster[[as.vector(j)]][i]
+                  rts(xts(t(x),index(j)))
                 } else {
                   stop("The specified range for time is out of subscribtion")
                 }
@@ -256,11 +225,7 @@ setMethod("[", c("SpatRasterTS", "SpatExtent","ANY"),
                 stop("Problem with specified time range!")
               }
             } else {
-              if(drop){
-                rts(xts(t(x@raster[i,drop=TRUE])[as.vector(x@time),],index(x@time)))
-              } else {
-                rts(x@raster[i],index(x@time)[as.vector(x@time)])
-              }
+              rts(xts(t(x@raster[i])[as.vector(x@time),],index(x@time)))
             }
           })
 #----------

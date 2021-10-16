@@ -1,0 +1,246 @@
+---
+title: 'rts: Raster Time Series'
+author: "Babak Naimi"
+date: "10/16/2021"
+output:
+  md_document:
+    variant: markdown_github
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+‘rts’ is an R package, aims to provide classes and methods for manipulating and processing of raster time series data. There is already a very nice package for handling and analyzing raster data (i.e. package: raster, and terra). Several packages have also been developed for handling time series data (e.g. xts package). ‘rts’ simply links 'raster'/'terra' and 'xts' packages together to provide new classes of raster time series data as well as a framework for analyzing such data.
+
+At the current stage, the package has provided the classes and some basic functions, but it is under development and will be extended by adding numerical routines for some specific analysis (e.g., to explpore ecosystem dynamics using time series of satellite images).
+
+This vignette aims to demonstrate how this package can be used given some simple examples:
+
+
+## Creating a raster time series object:
+
+Three classes, namely ‘RasterStackTS’,  ‘RasterBrickTS’ (based on a Raster* object from the raster package), and 'SpatRasterTS' (based on a SpatRaster object from the terra package)  are introduced by ‘rts’ package for handling raster time series data. These classes have a RasterStack or RasterBrick (introduced by package ‘raster’), or SpatRaster (introduced by package ‘terra’), and xts (introduced by package ‘xts’) classes inside. To create either of these classes, you should have a series of raster files (e.g. satellite images) and the date/time information corresponding to these rasters. Here is an example, we have 4 raster files in the format of grid ascii:
+
+```{r,echo=TRUE,message=FALSE}
+library(rts)
+library(terra)
+
+```
+
+
+```{r}
+
+# location of files
+
+path <- system.file("external", package="rts")
+
+# list of raster files:
+
+lst <- list.files(path=path,pattern='.asc$',full.names=TRUE)
+
+lst
+
+# creating a SpatRaster object
+
+r <- rast(lst)
+
+r # a SpatRaster object
+
+d <- c("2000-02-01","2000-03-01","2000-04-01","2000-05-01") # corresponding dates to 4 rasters
+
+d <- as.Date(d)
+
+d # dates correspond to 4 raster layers in R
+
+# creating a RasterStackTS object:
+
+rt <- rts(r,d) # we creater a SpatRasterTS (a raster time series)
+
+# here is the definition:
+rt
+
+# If you read the raster as a Raste* object (based on the package raster), it also works:
+
+r <- raster::stack(lst)
+
+# this is a RasterStack
+r
+
+rt <- rts(r, d)
+
+rt
+
+#####
+
+# You could alternatively put the list of file names in the rts:
+
+rt <- rts(lst,d)
+
+rt
+
+
+```
+
+You can use plot function to plot the raster time series:
+
+```{r,fig.width=6, fig.height=5}
+plot(rt)
+```
+
+
+or you can plot a subset of data:
+
+
+```{r,fig.width=6, fig.height=3}
+plot(rt[[c(1:2)]])
+```
+
+## Reading and Writing rts objects:
+
+You can simply save the raster time series by using write.rts function, and read it back by using read.rts:
+
+
+```{r,echo=TRUE,eval=FALSE}
+
+write.rts(rt, filename="my_rts",overwrite = F)
+
+
+rt <- read.rts("my_rts")
+
+```
+
+
+## Apply a function over time
+
+Using period.apply function, a function defined by user can be applied at each cell (pixel) over certain periods of time (e.g., yearly, monthly, quarterly, daily, etc.). The date/time period can be defined in INDEX argument by introducing a numeric vector in which each number specifies the end point of a date/time period. 
+
+For example, using c(10,20,30) introduces three periods of date/time, first starts from the first raster and ends to the 10th raster in a raster time series object, and the second period starts from 11th raster and ends to 20th raster and so on. In this case, if the number of raster layers is more than 30, a 4th period will be included to the selected period which starts from 31st layer and ends to the last layer in the raster time series object.
+
+There is a function, named endpoints, can be used to extract endpoints of the date/time periods based on a date/time base (e.g. seconds, minutes, hours, months, quadrants, years).
+
+A function can be specified in FUN argument. This function should return a single value and is applied at each cell over the specified date/time period. Therefore, a raster will be calculated for each period and the end of the date/time period will be assigned to it in the output raster time series object. 
+
+Following you will see an example, a raster time series object including 113 NDVI indices (derived from MODIS satellite images) with monthly periodicity from 2000-02-01 01 to 2009-12-01 has been read and several examples show how period.apply can be used:
+
+```{r,fig.width=6,fig.height=6}
+file <- system.file("external/ndvi", package="rts")
+
+# path and name of the Raster Time Series file:
+file
+
+ndvi <- rts(file) # read the ndvi time series from the specified file ndvi
+
+ndvi
+
+# here, we extract the index of yearly period that returns the end index of each year over 113 layers:
+
+ep <- endpoints(ndvi,'years')
+
+ep
+
+# let's take the mean of each year at each pixel:
+
+ndvi.y <- period.apply(ndvi,ep,mean) 
+
+# the outcome:
+ndvi.y
+
+
+# alternatively, we could use the function apply.yearly so then we did not need 
+# to provide the INDEX (using INDEX just gives the flexibility for customised periods)
+
+ndvi.y <- apply.yearly(ndvi, mean)
+
+
+# the outcome:
+ndvi.y
+
+
+
+#---------
+# another example based on the customized function:
+
+# The following function take the mean if minimum value in the period is greater than 0.4
+# otherwise, it returns 0
+
+f <- function(x) {
+  
+  if (min(x) > 0.4) mean(x) 
+  else 0
+
+}
+
+
+ndvi.q <- apply.quarterly(ndvi,f) # apply the function f on each quarter of a year
+
+ndvi.q
+
+
+cl <- colorRampPalette(c('red','orange','yellow','green','blue')) # color palette
+
+plot(ndvi.q[[1:8]],col=cl(200))
+
+```
+
+## Extract time series from a pixel
+
+By specifying the cell number of a certain location in a square bracket [ ], you can extract the time series:
+
+```{r,fig.width=5,fig.height=3}
+
+t <- ndvi[236]
+
+head(t) # the first 6 records of the time series
+
+
+plot(t)
+
+
+t <- ndvi[236:240]
+
+head(t)
+
+# you may use cellFromXY to get the cell number of a location given its coordinate
+
+
+
+c <- cellFromXY(ndvi, matrix(c(644400.5, 5735111),nrow=1 ))
+
+plot(ndvi[c])
+
+```
+
+## Download satellite images (Vegetation Products from AVHRR also MODIS land products)
+
+The function of VHIdownload assists to download Blended Vegetation Health Indices Product (blended VIIRS (2013-present) and AVHRR (1981-2012), below, referred as Blended-VHP or VHP). These images for are available with a weekly temporal resolution and a spatial resolution of 4 KM. Five products are available that are specified with the following abbreviations:
+
+- 'SMT': Smoothed Brightness Temperature 
+- 'SMN': Smoothed NDVI 
+- 'TCI': Temperature Condition Index 
+- 'VHI': Vegetation Health Index 
+- 'VCI': Vegetation Condition Index
+
+```{r,eval=FALSE}
+
+vhi <- VHPdownload(x='VHI',dates=c('2015.01.01','2015.02.28'),rts=TRUE) 
+
+```
+
+The above function downloads all vegetation health index products availabe for the specified time period, and the output is assigned to vhi as a raster time series object though the individual GeoTiff files are available in the working directory
+```{r,include=FALSE,echo=FALSE}
+r <- rast('/Users/babak/Dropbox/R_Books_Docs/r-gis.net/_rts_rforge/vhi.tif')
+NAflag(r) <- -9999
+vhi <- rts(r,as.Date(c("2015-01-01","2015-01-08","2015-01-15","2015-01-22","2015-01-29","2015-02-05","2015-02-12","2015-02-19","2015-02-26")))
+
+
+```
+```{r,fig.height=6,fig.width=6}
+vhi
+
+
+plot(vhi)
+```
+
+You can also download MODIS product using the getMODIS function.
+
