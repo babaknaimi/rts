@@ -58,7 +58,7 @@ lst <- list.files(path=path,pattern='.asc$',full.names=TRUE)
 lst # list of raster files
 
 
-r <- stack(lst) # creating a RasterStack object
+r <- rast(lst) # creating a RasterStack object
 
 r
 

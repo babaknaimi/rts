@@ -1,8 +1,15 @@
-# Author: Babak Naimi, naimi.b@gmail.com
+# Author: Babak Naimi, naimi.b@gmail.com (Thanks Robert Hijman for modifying the code)
 # Date :  Oct. 2021
-# Last Update :  March 2022
-# Version 1.1
+# Last Update :  Sep. 2023
+# Version 1.2
 # Licence GPL v3
+#-------------------------
+
+#----
+.name_from.wkt <- function(wkt) { # copied from terra (.name_from_wkt)
+  s = strsplit(wkt, ",")[[1]][1]
+  strsplit(s, "\"")[[1]][[2]]
+}
 
 
 
@@ -21,7 +28,7 @@
 		}
 	}
 	if (r == "") {
-		rr <- try(.name_from_wkt(wkt), silent=TRUE)
+		rr <- try(.name_from.wkt(wkt), silent=TRUE)
 		if (!inherits(rr, "try-error")) {
 			r <- rr
 		}

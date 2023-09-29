@@ -1,7 +1,7 @@
 # Author: Babak Naimi, naimi.b@gmail.com
 # Date :  July 2015
-# last Update: March 2023
-# Version 1.3
+# last Update: Sep. 2023
+# Version 1.4
 # Licence GPL v3
 
 
@@ -94,6 +94,7 @@ setMethod("[", c("SpatRasterTS", "Spatial","ANY"),
 
 setMethod("[", c("SpatRasterTS", "SpatVector","ANY"),
           function(x, i, j) {
+            i <- cellFromXY(x@raster,geom(i)[,c('x','y')])
             if (!missing(j)) {
               if (!inherits(try(j <- x@time[j],TRUE), "try-error")) {
                 if (length(j) > 0) {
@@ -101,7 +102,11 @@ setMethod("[", c("SpatRasterTS", "SpatVector","ANY"),
                   if (length(j) == 1) {
                     names(x) <- as.character(index(j))
                     x
-                  } else rts(x,index(j))  
+                  } else {
+                    x <- t(x)
+                    colnames(x) <- paste0('cell_',i)
+                    rts(xts(x,index(j)))
+                  }
                 } else {
                   stop("The specified range for time is out of subscribtion")
                 }
@@ -124,7 +129,11 @@ setMethod("[", c("SpatRasterTS", "numeric","ANY"),
                   if (length(j) == 1) {
                     names(x) <- as.character(index(j))
                     x
-                  } else rts(x,index(j))  
+                  } else {
+                    x <- t(x)
+                    colnames(x) <- paste0('cell_',i)
+                    rts(xts(x,index(j)))  
+                  }
                 } else {
                   stop("The specified range for time is out of subscribtion")
                 }

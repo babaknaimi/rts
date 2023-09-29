@@ -1,8 +1,8 @@
-# Author: Babak Naimi, naimi.b@gmail.com
+# Author: Babak Naimi, naimi.b@gmail.com (Thanks Robert Hijman for modifying the code)
 # This is based on 'show' function from raster package 
 # Date :  November 2012
-# Last Update :  Sep. 2022
-# Version 1.4
+# Last Update :  Sep. 2023
+# Version 1.5
 # Licence GPL v3
 
 setMethod ('show' , 'RasterStackBrickTS',
@@ -63,7 +63,7 @@ setMethod ('show' , 'SpatRasterTS',
              } 
              cat ('class       :' , class ( object ) , '\n')
              
-			 fnames <- filenames(object@raster)
+             fnames <- sources(object@raster)
 			 
              if (length(fnames[fnames != '']) > 0) {
                if (length(fnames) > 3) cat ('raster filename    :' , paste(fnames[1:3],collapse=', '),'...', '\n')

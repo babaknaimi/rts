@@ -10,7 +10,7 @@ importFrom("xts", endpoints,period.apply,apply.daily,apply.weekly,apply.monthly,
 importFrom("zoo", index,as.yearqtr,as.yearmon,"index<-")
 #importClassesFrom("raster","RasterStack","RasterBrick")
 importFrom("raster",nlayers,brick,calc,rasterFromCells,stack,filename,getZ,setValues,values,"values<-")
-importFrom("terra",extract,subset,cellFromRowCol,cellFromXY,crs,trim,ncell,xres,yres,writeRaster,app,hasValues,xyFromCell,values,crop,vect,window,nlyr,ext,res, rast,"NAflag<-",plot,"values<-",project)
+importFrom("terra",app,cellFromRowCol,cellFromXY,crs,crop,extract,ext,hasValues,ncell,"NAflag<-",minmax,nlyr,plot,project, rast,res,sources,subset,trim,values,"values<-",vect,window,writeRaster,xres,xyFromCell,yres)
 exportClasses(rts, RasterBrickTS, RasterStackTS, RasterStackBrickTS)
 S3method("index", "RasterStackBrickTS")
 S3method("index<-", "RasterStackBrickTS")
